@@ -88,6 +88,43 @@
       font-size: 14px;
     }
 
+    .page {
+      display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .page.is-active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .page-nav {
+      margin-top: 16px;
+    }
+
+    .page-nav .link-button {
+      cursor: pointer;
+    }
+
+    .pixel-transition {
+      animation: pixel-pop 0.4s steps(6, end);
+    }
+
+    @keyframes pixel-pop {
+      0% {
+        filter: contrast(1) brightness(1);
+      }
+      50% {
+        filter: contrast(1.2) brightness(1.1);
+      }
+      100% {
+        filter: contrast(1) brightness(1);
+      }
+    }
+
     .link-button {
       border: 2px solid var(--gb-darkest);
       padding: 6px 10px;
@@ -200,7 +237,18 @@
 
       <div class="divider"></div>
 
-      <section>
+      <section class="page is-active pixel-transition" data-page="landing">
+        <strong>Bio</strong>
+        <p>
+          Jacob Reynolds is Head of Policy at MCC Brussels, a PhD candidate at Vrije Universiteit
+          Brussel, and author of <em>Beyond the Culture Wars</em>.
+        </p>
+        <div class="page-nav">
+          <button class="link-button" type="button" data-next="details">More</button>
+        </div>
+      </section>
+
+      <section class="page" data-page="details">
         <strong>Bio</strong>
         <p>
           Jacob Reynolds is Head of Policy at MCC Brussels. His background spans philosophy studies
@@ -208,28 +256,42 @@
           of Ideas festival and The Academy. He is currently a PhD candidate at Vrije Universiteit
           Brussel and author of <em>Beyond the Culture Wars</em>.
         </p>
-      </section>
-
-      <section>
-        <strong>Highlights</strong>
-        <div>
-          <a class="link-button" href="https://www.youtube.com/watch?v=-FYC6XRkAmk" target="_blank" rel="noreferrer">Research</a>
-          <a class="link-button" href="https://www.spiked-online.com/author/jacob-reynolds/" target="_blank" rel="noreferrer">Writing</a>
-          <a class="link-button" href="https://brussels.mcc.hu/person/jacob-reynolds" target="_blank" rel="noreferrer">Public Profile</a>
+        <div class="page-nav">
+          <button class="link-button" type="button" data-next="highlights">Next</button>
         </div>
       </section>
 
-      <section>
-        <strong>Link Tree</strong>
-        <ul>
-          <li><a href="https://www.youtube.com/playlist?list=PLstbq4NENBjMow7dk-icMnrlpuEZCxpso" target="_blank" rel="noreferrer">Watch: MCC Brussels Podcast</a></li>
-          <li><a href="https://www.youtube.com/watch?v=p0YVQ_Jw-Pw" target="_blank" rel="noreferrer">Watch: Viral video on Trump&apos;s victory and Europe</a></li>
-          <li><a href="https://www.spiked-online.com/author/jacob-reynolds/" target="_blank" rel="noreferrer">Read: Latest articles on Spiked</a></li>
-          <li><a href="https://www.battleofideas.org.uk/speaker/jacob-reynolds-2/" target="_blank" rel="noreferrer">Debates: Battle of Ideas festival</a></li>
-          <li><a href="https://substack.com/@jacobreynolds3/posts" target="_blank" rel="noreferrer">Read: Pieces on Substack</a></li>
-          <li><a href="https://www.youtube.com/watch?v=-FYC6XRkAmk" target="_blank" rel="noreferrer">Watch: Hannah Arendt lecture</a></li>
-          <li><a href="https://brussels.mcc.hu/person/jacob-reynolds" target="_blank" rel="noreferrer">Profile: Head of Policy, MCC Brussels</a></li>
-        </ul>
+      <section class="page" data-page="highlights">
+        <strong>Highlights</strong>
+        <div>
+          <a class="link-button" href="https://x.com/" target="_blank" rel="noreferrer">X</a>
+          <details class="link-menu">
+            <summary class="link-button">Writing</summary>
+            <div class="menu-panel">
+              <a href="https://www.spiked-online.com/author/jacob-reynolds/" target="_blank" rel="noreferrer">Spiked</a><br />
+              <a href="https://substack.com/@jacobreynolds3/posts" target="_blank" rel="noreferrer">Substack</a>
+            </div>
+          </details>
+          <a class="link-button" href="https://www.youtube.com/playlist?list=PLstbq4NENBjMow7dk-icMnrlpuEZCxpso" target="_blank" rel="noreferrer">Podcast</a>
+          <a class="link-button" href="https://brussels.mcc.hu/person/jacob-reynolds" target="_blank" rel="noreferrer">Public Profile</a>
+        </div>
+        <details class="link-menu">
+          <summary class="link-button">Greatest Hits</summary>
+          <div class="menu-panel">
+            <ul>
+              <li><a href="https://www.youtube.com/playlist?list=PLstbq4NENBjMow7dk-icMnrlpuEZCxpso" target="_blank" rel="noreferrer">Watch: MCC Brussels Podcast</a></li>
+              <li><a href="https://www.youtube.com/watch?v=p0YVQ_Jw-Pw" target="_blank" rel="noreferrer">Watch: Viral video on Trump&apos;s victory and Europe</a></li>
+              <li><a href="https://www.spiked-online.com/author/jacob-reynolds/" target="_blank" rel="noreferrer">Read: Latest articles on Spiked</a></li>
+              <li><a href="https://www.battleofideas.org.uk/speaker/jacob-reynolds-2/" target="_blank" rel="noreferrer">Debates: Battle of Ideas festival</a></li>
+              <li><a href="https://substack.com/@jacobreynolds3/posts" target="_blank" rel="noreferrer">Read: Pieces on Substack</a></li>
+              <li><a href="https://www.youtube.com/watch?v=-FYC6XRkAmk" target="_blank" rel="noreferrer">Watch: Hannah Arendt lecture</a></li>
+              <li><a href="https://brussels.mcc.hu/person/jacob-reynolds" target="_blank" rel="noreferrer">Profile: Head of Policy, MCC Brussels</a></li>
+            </ul>
+          </div>
+        </details>
+        <div class="page-nav">
+          <button class="link-button" type="button" data-next="landing">Back to start</button>
+        </div>
       </section>
 
       <footer>
@@ -237,5 +299,29 @@
       </footer>
     </main>
   </div>
+  <script>
+    const pages = Array.from(document.querySelectorAll(".page"));
+
+    const setActivePage = (target) => {
+      pages.forEach((page) => {
+        page.classList.toggle("is-active", page.dataset.page === target);
+      });
+
+      const active = pages.find((page) => page.dataset.page === target);
+      if (active) {
+        active.classList.add("pixel-transition");
+        setTimeout(() => active.classList.remove("pixel-transition"), 400);
+      }
+    };
+
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-next]");
+      if (!trigger) {
+        return;
+      }
+      const target = trigger.getAttribute("data-next");
+      setActivePage(target);
+    });
+  </script>
 </body>
 </html>
