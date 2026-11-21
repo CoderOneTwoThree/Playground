@@ -1,4 +1,4 @@
-**Title:** iOS keyboard: autocorrect misses a missed space when one of the words is misspelled, and can't split three or more run-together words
+**Title:** Autocorrect of misspelled words with a missed space
 
 ### Hex version
 
@@ -14,17 +14,37 @@ FILL IN: iPhone model and iOS version. The keyboard language is English, with Sp
 
 ### What happened?
 
-The autocorrect generally is extremely strong. One area that could use improvement is the handling of missed spaces between words, where one of the words is misspelled. A related gap is three or more words typed with no spaces at all.
+The autocorrect generally is extremely strong. One area that could use improvement is the handling of missed spaces in between words, where one of the words is misspelled.
 
 I have reproduced this in-keyboard with a large range of words.
 
-**Expected:** the keyboard recognises both the missed space and the misspelled word. When one of the words is spelled correctly, that should help it spot the missing space, and the other word then becomes easy to fix. Three run-together words should be split too.
+**Example**
+
+1/ User types "specialcharacter"
+
+Keyboard recognises this as two words and inserts a space, producing "special character".
+
+2/ User types "specialchsracter"
+
+The user has mistyped "character", typing an s for the a.
+
+Keyboard neither recognises the misspelling, nor does it recognise the missed space between the words.
+
+Keyboard leaves this as "specialchsracter".
+
+3/ Correct handling
+
+The keyboard should be able to recognise both the missed space and the misspelled word.
+
+**Three words with missed spaces**
+
+The keyboard also can't handle three correctly spelled words with the spaces missed. "seeyoutomorrow", "thankyouverymuch" and "haveaniceday" are all left as typed. The keyboard should produce "see you tomorrow", "thank you very much" and "have a nice day".
 
 ### Steps to reproduce
 
-1. Type "specialcharacter" and press Space. The keyboard recognises this as two words and inserts a space, producing "special character". ✅
-2. Type "specialchsracter" (s hit instead of a in "character") and press Space. The keyboard recognises neither the misspelling nor the missed space between the words, and leaves it as "specialchsracter". ❌
-3. Type "seeyoutomorrow", "thankyouverymuch" or "haveaniceday" and press Space. Each stays as typed; expected "see you tomorrow", "thank you very much", "have a nice day". ❌
+1. Using the Hex keyboard in English, type "specialcharacter" and press Space. It becomes "special character".
+2. Type "specialchsracter" and press Space. It stays "specialchsracter".
+3. Type "seeyoutomorrow" and press Space. It stays "seeyoutomorrow".
 
 ### Additional context
 
