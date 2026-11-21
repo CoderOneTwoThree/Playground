@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0, '.')
+import sys; import os; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from decoder import *
 m = Model(sys.argv[1]); dec = Decoder(m)
 cases = [("specialcharacter","specialchsracter"),("thankyou","thsnkyou"),("goodmorning","goodmotning"),
