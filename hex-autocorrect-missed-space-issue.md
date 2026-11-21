@@ -115,3 +115,107 @@ func testThreeWordsWithMissedSpacesSplit() throws {
     XCTAssertEqual(target.text, "see you tomorrow ", "two missed spaces")
 }
 ```
+
+---
+
+## What I tested and tried
+
+### Setup
+
+- I cloned `anomalyco/hex` at `edeccfc` (dev, 21 Nov 2026) and read the iOS keyboard's autocorrect code:
+  - `ios/HEXShared/FullKeyboard/AutocorrectEngine.swift` decides what Space puts in. It sends a word either to Spatial autocorrect or to `UITextChecker`.
+  - `ios/HEXShared/FullKeyboard/TypingDecoder.swift` is Spatial autocorrect, which is on by default (`FullKeyboardSettings.spatialAutocorrect`).
+  - `ios/HEXMobileTests/AutocorrectEngineTests.swift` has the existing split tests: "seehow", "ofbthe", and the split-guess rules.
+- I couldn't run Swift, Xcode or a simulator, because the machine was Linux. Instead, I ported the decoder to Python line for line:
+  - the HXTM v3 model reader;
+  - the per-tap Gaussian cost, with `sigmaX` 0.29 and `sigmaY` 0.26;
+  - the beam search with one edit (substitution, insertion, deletion, transposition, free apostrophe);
+  - `splitReadings`;
+  - the margin rule.
+- The port used the English parameters from `Parameters.tuned(for: "en")`.
+- It read the real bundled model, `ios/HEXKeyboard/TypingModel/en.hextm`.
+- Taps land at key centres on a QWERTY grid with one-key pitch and standard row offsets.
+
+The port leaves out four things:
+- your own words and `UILexicon`;
+- the never-suggest list;
+- adaptive touch offsets;
+- `UITextChecker` validity, so every word missing from the model counts as unknown.
+
+### Checking the port against the repo's behaviour
+
+| Typed | Port result | Matches the repo? |
+|---|---|---|
+| seehow | see how | Yes, the case tested in `testSpatialAutocorrectReadsTapsWithTheWordBefore` |
+| ofthe | of the | Yes |
+| specialcharacter | special character | Yes, matches what you see in the keyboard |
+| specialchsracter | unchanged | Yes, matches what you see in the keyboard |
+
+### Test 1: a missed space plus one slip
+
+Each slip is a neighbouring key, tapped dead centre.
+
+| No slip | Result | With slip | Result | Best two-word cost (bar is 31) |
+|---|---|---|---|---|
+| specialcharacter | special character | specialchsracter | unchanged | over 33, dropped |
+| goodmorning | good morning | goodmotning | unchanged | 32.08 |
+| nextweek | next week | nextwerk | unchanged | 31.70 |
+| lookingforward | looking forward | lookingforwsrd | unchanged | 31.89 |
+| emailaddress | email address | emailaddtess | unchanged | over 33, dropped |
+| thankyou | thank you | thsnkyou | thank you | 28.14 |
+| seeyou | see you | seeyiu | see you | 29.64 |
+| lastnight | last night | lastnifht | last night | 29.83 |
+| canyou | can you | csnyou | can you | 29.08 |
+| thatis | that is | thatos | that is | 25.33 |
+| ofthe | of the | ofrhe | of the | 20.26 |
+| inthe | in the | inyhe | in the | 21.20 |
+| doyou | do you | doyoy | do you | 26.83 |
+
+I also ran phonenumvet and highschoik, which both stayed unchanged. These have two slips each, so they aren't a fair comparison.
+
+Two more checks:
+- "chsracter" typed as its own word after "special " is corrected to "character".
+- Measured numbers: the clean split costs 29.69, the literal costs 33.0, and the bar is 31.0, so the slack is 1.31 nats. Reading an S tap as A costs 5.95.
+
+### Test 2: three or more words with no spaces
+
+All of these stayed unchanged, with no candidate reading at all:
+
+- seeyoutomorrow
+- thankyouverymuch
+- iloveyou
+- whatareyou
+- inthemorning
+- haveaniceday
+- specialcharacterset
+
+### Tried: the "anchor on an exact word" rule
+
+The rule runs only when the normal decoder makes no change:
+1. Take each prefix that is an exact model word, two or more letters long, leaving three or more letters after it.
+2. Decode the rest as its own word, with the prefix as the previous word.
+3. If the rest gets a one-word fix, keep the most probable "prefix + fix".
+
+| Group | Words | Outcome |
+|---|---|---|
+| Fixed | specialchsracter, goodmotning, nextwerk, lookingforwsrd, emailaddtess | All correct |
+| One-word typos, unaffected | understsnd, togetjer, beautifull, somethinf, carpwt, informstion, therapidt, afternoom, butterflt, passwird, infornstipn, defintely | The normal decoder still fixes each as one word |
+| Left alone | carlsberg, kubernetes, manchesyer, hotdogging, wifi | No change |
+| Wrongly split | netflix → net flux, bitcoin → bi coin, overthinking → overthink in, toolbarx → tool bar | Errors. On device, `UITextChecker` may protect the first three. |
+
+### Not done
+
+- The fixes haven't been run through the repo's typing benchmark (`android/benchmark/typing`).
+- The two XCTest sketches haven't been compiled or run.
+- I didn't trace the Android keyboard, so I don't know whether it has the same behaviour.
+- I didn't test other languages.
+
+### Reproducing
+
+The scripts are in `hex-autocorrect-repro/`, next to this file. Each takes the model path as its first argument:
+
+```sh
+python3 decoder.py path/to/hex/ios/HEXKeyboard/TypingModel/en.hextm specialcharacter specialchsracter
+python3 missed_space_with_slip.py path/to/en.hextm
+python3 three_words_and_anchor_rule.py path/to/en.hextm
+```
